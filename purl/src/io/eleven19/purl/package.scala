@@ -7,4 +7,8 @@ package object purl {
     def ok[A](value: A): Result[A]             = Right(value)
     val unit: Result[Unit]                     = ok(())
   }
+
+  implicit final class ResultOps[+A](val self: Result[A]) extends AnyVal {
+    @inline def isOk: Boolean = self.isRight
+  }
 }

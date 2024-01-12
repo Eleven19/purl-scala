@@ -22,10 +22,10 @@ object PackageUrl {
       _       <- Validations.validateNoUserInfo(uri)
       _       <- Validations.validatePort(uri)
       _       <- Validations.validatedScheme(uri)
-      subpath <- Validations.validatedSubpath(uri)
+      subpath <- Subpath.parse(uri.getRawFragment())
       remainder = new StringBuilder(uri.getRawSchemeSpecificPart())
     } yield PackageUrl(
-      protocol = "",
+      protocol = Protocol(""),
       namespace = Namespace.none,
       name = uri.getRawPath(),
       version = Version.none,
@@ -72,21 +72,5 @@ object PackageUrl {
         Result.err(PurlError.InvalidScheme(scheme))
       }
     }
-
-    def validatedSubpath(uri: URI): Result[Subpath] = {
-      val fragment = uri.getRawFragment()
-      if (fragment != null && !fragment.isEmpty()) {
-        validatedSubpath(fragment)
-      } else {
-        Result.ok(None)
-      }
-    }
-
-    def validatedSubpath(value: String): Result[Subpath] =
-      if (value != null && !value.isEmpty()) {
-        Result.ok(Some(value))
-      } else {
-        Result.ok(None)
-      }
   }
 }
