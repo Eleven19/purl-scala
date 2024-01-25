@@ -1,4 +1,5 @@
 package io.eleven19.purl
+import zio.prelude._
 import components._
 import java.net.{URI, URISyntaxException}
 
@@ -27,50 +28,51 @@ object PackageUrl {
     } yield PackageUrl(
       protocol = Protocol(""),
       namespace = Namespace.none,
-      name = uri.getRawPath(),
+      name = Name(uri.getRawPath()),
       version = Version.none,
       qualifiers = Map.empty,
       subpath = subpath
     )
 
   object Validations {
-    def validateInputNotEmpty(input: String): Result[Any] =
+    def validateInputNotEmpty(input: String): Result[String] =
       if (input == null || input.trim().isEmpty()) {
-        Result.err(PurlError.MissingScheme)
+        Validation.fail(PurlError.MissingScheme)
       } else {
-        Result.unit
+        Validation.succeed(input)
       }
 
     def validatedUri(input: String): Result[URI] =
       try
-        Result.ok(new URI(input))
+        Validation.succeed(new URI(input))
       catch {
-        case e: URISyntaxException => Result.err(PurlError.MalformedPackageUrl(e.getMessage()))
+        case e: URISyntaxException => Validation.fail(PurlError.MalformedPackageUrl(e.getMessage()))
       }
 
-    def validateNoUserInfo(uri: URI): Result[Any] =
+    def validateNoUserInfo(uri: URI): Result[URI] =
       if (uri.getUserInfo() != null) {
-        Result.err(PurlError.MalformedPackageUrl("User info is not allowed"))
+        Validation.fail(PurlError.MalformedPackageUrl("User info is not allowed"))
       } else {
-        Result.unit
+        Validation.succeed(uri)
       }
 
-    def validatePort(uri: URI): Result[Any] = {
+    def validatePort(uri: URI): Result[URI] = {
       val port = uri.getPort()
       if (port != -1) {
-        Result.err(PurlError.MalformedPackageUrl(s"Port is not allowed but is present, port: port"))
+        Validation.fail(PurlError.MalformedPackageUrl(s"Port is not allowed but is present, port: port"))
       } else {
-        Result.unit
+        Validation.succeed(uri)
       }
     }
 
     def validatedScheme(uri: URI): Result[String] = {
       val scheme = uri.getScheme()
       if (scheme.equals("pkg")) {
-        Result.ok(scheme)
+        Validation.succeed(scheme)
       } else {
-        Result.err(PurlError.InvalidScheme(scheme))
+        Validation.fail(PurlError.InvalidScheme(scheme))
       }
     }
   }
 }
+ 

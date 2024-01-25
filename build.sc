@@ -41,7 +41,9 @@ trait PurlModule extends Cross.Module[String] with CrossPlatform {
 
   }
 
-  trait Shared extends CommonCrossPlatformScalaModule {}
+  trait Shared extends CommonCrossPlatformScalaModule {
+    override def ivyDeps: T[Agg[Dep]] = super.ivyDeps() ++ Agg(ivy"dev.zio::zio-prelude::${V.`zio-prelude`}")
+  }
 
   object jvm extends Shared with CommonJvmModule {
     object test extends ScalaTests with CommonTestModule
@@ -71,4 +73,5 @@ object V {
 
   val `scala-java-time` = "2.5.0"
   val zio               = "2.0.21"
+  val `zio-prelude`     = "1.0.0-RC22"
 }

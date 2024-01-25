@@ -13,7 +13,7 @@ object PackageUrlSpec extends ZIOSpecDefault {
     test("Can successfully parse a valid Bitbucket package url") {
       val input = "pkg:bitbucket/birkenfeld/pygments-main@244fd47e07d1014f0aed9c"
       val expected = Result.ok(PackageUrl(
-        protocol = "bitbucket",
+        protocol = Protocol("bitbucket"),
         namespace = Namespace("birkenfeld"),
         name = Name("pygments-main"),
         version = Version("244fd47e07d1014f0aed9c"),
